@@ -9,13 +9,13 @@ WORKDIR /app
 COPY demo/pom.xml .
 COPY demo/src ./src
 
-RUN mvn clean install -DskipTests
+RUN mvn -f pom.xml clean package
 
-FROM maven:3.9.7-sapmachine-21
+FROM openjdk:21-jdk-slim
      
 WORKDIR /app
 
-COPY --from=build /app/target/app*.jar .
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8888
 
