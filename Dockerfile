@@ -1,4 +1,4 @@
-FROM maven:3.9.7-sapmachine-21
+FROM maven:3.9.7-sapmachine-21 AS build
 
 RUN apt-get update && \
     apt-get install -y curl && \
@@ -6,18 +6,17 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY demo/pom.xml ./
+COPY demo/pom.xml .
+COPY demo/src ./src
 
-RUN mvn dependency:go-offline
-
-COPY /demo .
-     
 RUN mvn clean install -DskipTests
+
+FROM maven:3.9.7-sapmachine-21
+     
+WORKDIR /app
+
+COPY --from=build /app/target/app*.jar .
 
 EXPOSE 8888
 
-HEALTHCHECK --interval=10s --timeout=30s \
-     --retries=3 CMD curl -f http://localhost:8888/api/message|| exit 1
-
-
-CMD ["sh", "-c", "mvn spring-boot:run"]
+CMD ["java", "-jar", "app.jar"]
