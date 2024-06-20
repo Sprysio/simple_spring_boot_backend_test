@@ -6,11 +6,11 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY simple-backend/pom.xml ./
+COPY demo/pom.xml ./
 
 RUN mvn dependency:go-offline
 
-COPY /simple-backend .
+COPY /demo .
      
 RUN mvn clean install -DskipTests
 
