@@ -1,9 +1,5 @@
 FROM maven:3.9.7-sapmachine-21 AS build
 
-RUN apt-get update && \
-    apt-get install -y curl && \
-    rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 COPY demo/pom.xml .
@@ -14,6 +10,10 @@ RUN mvn -f pom.xml clean package
 FROM openjdk:21-jdk-slim
      
 WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/target/*.jar app.jar
 
