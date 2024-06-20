@@ -1,4 +1,4 @@
-FROM maven:alpine-jdk21
+FROM maven:3.9.7-sapmachine-21
 
 RUN apk add --update curl && \
     rm -rf /var/cache/apk/*
