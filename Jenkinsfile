@@ -25,7 +25,7 @@ pipeline {
                 mvn test
                 '''
             }
-        }
+        }/*
         stage('Build image'){
             steps{
                 echo 'bulding docker image'
@@ -46,6 +46,47 @@ pipeline {
                 docker push sprysio/backend_build:latest
                 '''
             }
+            }
+        }*/
+        stage('Clone development repo'){
+            steps{
+                echo 'Clone development repo'
+                dir("/tmp/repo_b") {
+                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh-credentials-id', keyFileVariable: 'SSH_KEY')]) {
+                        sh '''
+                        ls -al
+                        mkdir -p ~/.ssh
+                        ssh-keyscan github.com >> ~/.ssh/known_hosts
+                        ssh-agent sh -c 'ssh-add ${SSH_KEY}; git clone -b main git@github.com:Sprysio/simple-development-test2.git .'
+                        '''
+                    }
+             } 
+            }
+        }
+        stage('Moving files'){
+            steps{
+                echo 'moving files'
+                sh 'mkdir -p /tmp/repo_b/simple-backend'
+                sh 'cp -r /home/jenkins/workspace/${JOB_NAME}/* /tmp/repo_b/simple-backend'
+            }
+        }
+        stage('Push to Git'){
+            steps{
+                echo 'pushing to github'
+                    dir("/tmp/repo_b") {
+                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-credentials-id', keyFileVariable: 'SSH_KEY')]) {
+                    sh '''
+                    ls -al
+                    export GIT_SSH_COMMAND="ssh -i $SSH_KEY"
+                    git config user.email "99020634+Sprysio@users.noreply.github.com"
+                    git config user.name "Sprysio"
+                    git checkout -b jenkins_branch_${BUILD_ID}
+                    git add .
+                    git commit -m "push to git"
+                    git push origin jenkins_branch_${BUILD_ID}
+                    '''
+                    }
+                }
             }
         }
     }
