@@ -25,7 +25,7 @@ pipeline {
                 mvn test
                 '''
             }
-        }/*
+        }
         stage('Build image'){
             steps{
                 echo 'bulding docker image'
@@ -47,7 +47,7 @@ pipeline {
                 '''
             }
             }
-        }*/
+        }/*
         stage('Clone development repo'){
             steps{
                 echo 'Clone development repo'
@@ -88,7 +88,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
     }
     post{
         always {  
