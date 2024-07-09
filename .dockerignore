@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.dockerignore
+**/*.log
+Dockerfile
+.git
+.gitignore
