@@ -1,32 +1,29 @@
-FROM maven:3.9.7-sapmachine-21 AS build
+FROM maven:3.9.7-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
-COPY demo/pom.xml .
+COPY pom.xml .
 
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline 
 
-COPY demo/src ./src
+COPY /src ./src
 
 RUN mvn -f pom.xml clean package -DskipTests
 
 #FROM eclipse-temurin:17-jre-alpine
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jre-alpine
      
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y curl dumb-init && \
-    addgroup --system javauser && \
-    adduser -S -s /bin/false -G javauser javauser && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add --no-cache dumb-init && \
+    addgroup -S javauser && adduser -S javauser -G javauser
 
 COPY --from=build /app/target/*.jar app.jar
-
-EXPOSE 8888
 
 RUN chown -R javauser:javauser /app
 
 USER javauser
 
-CMD "dumb-init" "java" "-jar" "app.jar"
+EXPOSE 8080
+
+CMD ["dumb-init", "java", "-jar", "app.jar"]
